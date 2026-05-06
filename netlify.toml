@@ -1,0 +1,16 @@
+[build]
+  publish = "."
+
+# Required for Godot HTML5 (SharedArrayBuffer / threads support).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "require-corp"
+    Cross-Origin-Resource-Policy = "cross-origin"
+
+# Correct MIME type for the WebAssembly binary.
+[[headers]]
+  for = "/*.wasm"
+  [headers.values]
+    Content-Type = "application/wasm"
