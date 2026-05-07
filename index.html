@@ -293,12 +293,151 @@
 	</div>
 
 	<script type='text/javascript'>
-		// Dismiss the lore overlay (click "Begin", press Enter, or press Space).
+		// Lore overlay: chiptune background music + dismiss handlers.
 		(function() {
 			var overlay = document.getElementById('lore-overlay');
 			var btn = document.getElementById('lore-begin');
+			var audioCtx = null;
+			var musicTimer = null;
+			var masterGain = null;
+			var musicStarted = false;
+
+			// Vintage music-box / old radio synth.
+			// Melody: triangle wave with pluck envelope, low-pass filtered.
+			// Bass: soft sine wave, slow attack.
+			var lpFilter = null; // shared low-pass filter for "old radio" warmth
+
+			function playMelodyNote(freq, startTime, duration, gainValue) {
+				var osc = audioCtx.createOscillator();
+				var gain = audioCtx.createGain();
+				osc.type = 'triangle';
+				osc.frequency.value = freq;
+				// Music-box pluck: instant attack, exponential decay.
+				gain.gain.setValueAtTime(0, startTime);
+				gain.gain.linearRampToValueAtTime(gainValue, startTime + 0.005);
+				gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+				osc.connect(gain);
+				gain.connect(lpFilter);
+				osc.start(startTime);
+				osc.stop(startTime + duration + 0.05);
+			}
+
+			function playBassNote(freq, startTime, duration, gainValue) {
+				var osc = audioCtx.createOscillator();
+				var gain = audioCtx.createGain();
+				osc.type = 'sine';
+				osc.frequency.value = freq;
+				gain.gain.setValueAtTime(0, startTime);
+				gain.gain.linearRampToValueAtTime(gainValue, startTime + 0.05);
+				gain.gain.linearRampToValueAtTime(gainValue * 0.6, startTime + duration * 0.5);
+				gain.gain.linearRampToValueAtTime(0, startTime + duration);
+				osc.connect(gain);
+				gain.connect(masterGain);
+				osc.start(startTime);
+				osc.stop(startTime + duration + 0.05);
+			}
+
+			// Slow, melancholic waltz-like melody in A minor.
+			// Tempo: 80 bpm. Quarter note = 0.75s. We use beats in quarter notes.
+			var MELODY = [
+				// Phrase 1
+				[440.00, 1.5], [523.25, 0.5], [659.25, 1], [587.33, 1],
+				[523.25, 1.5], [493.88, 0.5], [440.00, 2],
+				// Phrase 2
+				[493.88, 1.5], [523.25, 0.5], [587.33, 1], [659.25, 1],
+				[587.33, 1.5], [523.25, 0.5], [493.88, 2],
+				// Phrase 3 (lift)
+				[523.25, 1], [659.25, 1], [783.99, 1], [659.25, 1],
+				[587.33, 1.5], [523.25, 0.5], [493.88, 2],
+				// Phrase 4 (resolve)
+				[440.00, 1], [493.88, 1], [523.25, 1], [493.88, 1],
+				[440.00, 3], [0, 1]
+			];
+			var BASS = [
+				// Slow root-note pulse, one note per 4 beats.
+				[110.00, 4], [98.00, 4], [110.00, 4], [82.41, 4],
+				[110.00, 4], [98.00, 4], [110.00, 4], [82.41, 4]
+			];
+			var BEAT = 0.375; // seconds per quarter note (~80 bpm)
+
+			function scheduleLoop(startTime) {
+				var t = startTime;
+				for (var i = 0; i < MELODY.length; i++) {
+					var note = MELODY[i];
+					if (note[0] > 0) {
+						playMelodyNote(note[0], t, note[1] * BEAT * 0.95, 0.12);
+					}
+					t += note[1] * BEAT;
+				}
+				var bt = startTime;
+				for (var j = 0; j < BASS.length; j++) {
+					var b = BASS[j];
+					playBassNote(b[0], bt, b[1] * BEAT * 0.95, 0.06);
+					bt += b[1] * BEAT;
+				}
+				return t;
+			}
+
+			function startMusic() {
+				if (musicStarted) return;
+				try {
+					if (!audioCtx) {
+						var Ctx = window.AudioContext || window.webkitAudioContext;
+						if (!Ctx) return;
+						audioCtx = new Ctx();
+						masterGain = audioCtx.createGain();
+						masterGain.gain.value = 0.45;
+						masterGain.connect(audioCtx.destination);
+
+						// Low-pass filter: rolls off highs for a warm, vintage feel.
+						lpFilter = audioCtx.createBiquadFilter();
+						lpFilter.type = 'lowpass';
+						lpFilter.frequency.value = 1800;
+						lpFilter.Q.value = 0.7;
+						lpFilter.connect(masterGain);
+					}
+					// If suspended (autoplay block), wait until resumed.
+					if (audioCtx.state === 'suspended') {
+						audioCtx.resume().then(function() { actuallyStart(); });
+						return;
+					}
+					actuallyStart();
+				} catch (e) { /* ignore */ }
+			}
+
+			function actuallyStart() {
+				if (musicStarted || !audioCtx) return;
+				musicStarted = true;
+				var loopLen = 0;
+				for (var i = 0; i < MELODY.length; i++) loopLen += MELODY[i][1] * BEAT;
+				var nextStart = audioCtx.currentTime + 0.05;
+				scheduleLoop(nextStart);
+				musicTimer = setInterval(function() {
+					if (!audioCtx) return;
+					nextStart += loopLen;
+					scheduleLoop(nextStart);
+				}, loopLen * 1000);
+			}
+
+			function stopMusic() {
+				if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+				if (masterGain && audioCtx) {
+					var now = audioCtx.currentTime;
+					masterGain.gain.cancelScheduledValues(now);
+					masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+					masterGain.gain.linearRampToValueAtTime(0, now + 0.4);
+				}
+				setTimeout(function() {
+					if (audioCtx) {
+						try { audioCtx.close(); } catch (e) {}
+						audioCtx = null;
+					}
+				}, 600);
+			}
+
 			function dismiss() {
 				if (!overlay || overlay.classList.contains('hide')) return;
+				stopMusic();
 				overlay.classList.add('hide');
 				setTimeout(function() {
 					overlay.style.display = 'none';
@@ -306,6 +445,17 @@
 					if (canvas) canvas.focus();
 				}, 600);
 			}
+
+			// Try autoplay; if blocked (likely), kick it off on first user input.
+			startMusic();
+			function userKick() {
+				startMusic();
+				document.removeEventListener('click', userKick, true);
+				document.removeEventListener('keydown', userKick, true);
+			}
+			document.addEventListener('click', userKick, true);
+			document.addEventListener('keydown', userKick, true);
+
 			if (btn) btn.addEventListener('click', dismiss);
 			document.addEventListener('keydown', function(e) {
 				if (e.key === 'Enter' || e.key === ' ') dismiss();
