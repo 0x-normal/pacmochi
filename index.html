@@ -251,6 +251,122 @@
 			0%, 100% { transform: translateY(0); }
 			50%      { transform: translateY(-6px); }
 		}
+
+		/* How-to-play overlay (shown after Press Start) */
+		#howto-overlay {
+			position: fixed;
+			inset: 0;
+			background:
+				repeating-linear-gradient(
+					0deg,
+					rgba(0, 0, 0, 0.25) 0px,
+					rgba(0, 0, 0, 0.25) 2px,
+					transparent 2px,
+					transparent 4px
+				),
+				radial-gradient(ellipse at center, #2a1a3a 0%, #0a0510 80%);
+			color: #f4e4b8;
+			display: none;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+			padding: 24px;
+			z-index: 1000;
+			font-family: 'VT323', 'Courier New', monospace;
+			image-rendering: pixelated;
+		}
+
+		#howto-overlay.show {
+			display: flex;
+		}
+
+		#howto-overlay.hide {
+			animation: fadeOut 0.5s steps(6, end) forwards;
+		}
+
+		#howto-overlay h2 {
+			font-family: 'Press Start 2P', monospace;
+			font-size: clamp(18px, 3vw, 28px);
+			color: #ffd86b;
+			text-shadow: 2px 2px 0 #b8400a, 4px 4px 0 #5a1a05;
+			margin: 0 0 32px;
+			letter-spacing: 0.06em;
+		}
+
+		.howto-row {
+			display: flex;
+			align-items: center;
+			gap: 18px;
+			font-size: clamp(18px, 2.2vw, 24px);
+			color: #e8d9b0;
+			margin: 10px 0;
+			text-shadow: 1px 1px 0 #1a0a2a;
+			min-height: 56px;
+		}
+
+		.kbd {
+			font-family: 'Press Start 2P', monospace;
+			font-size: clamp(10px, 1.4vw, 13px);
+			color: #ffd86b;
+			background: #1a0a2a;
+			border: 3px solid #ffd86b;
+			padding: 8px 12px;
+			min-width: 36px;
+			display: inline-block;
+			box-shadow:
+				inset -2px -2px 0 #5a1a05,
+				inset 2px 2px 0 #ff9a3a,
+				3px 3px 0 #000;
+		}
+
+		.kbd-group {
+			display: inline-flex;
+			gap: 6px;
+		}
+
+		#howto-countdown {
+			font-family: 'Press Start 2P', monospace;
+			font-size: clamp(10px, 1.2vw, 12px);
+			color: #b89a6a;
+			margin-top: 32px;
+			letter-spacing: 0.2em;
+		}
+
+		#howto-skip {
+			font-family: 'Press Start 2P', monospace;
+			background: #1a0a2a;
+			border: 4px solid #ffd86b;
+			color: #ffd86b;
+			padding: 10px 24px;
+			font-size: 12px;
+			letter-spacing: 0.15em;
+			cursor: pointer;
+			margin-top: 18px;
+			box-shadow:
+				inset -3px -3px 0 #5a1a05,
+				inset 3px 3px 0 #ff9a3a,
+				4px 4px 0 #000;
+			image-rendering: pixelated;
+			transition: transform 0.08s steps(2);
+		}
+
+		#howto-skip:hover,
+		#howto-skip:focus {
+			background: #ffd86b;
+			color: #1a0a2a;
+			outline: none;
+			transform: translate(2px, 2px);
+			box-shadow:
+				inset -3px -3px 0 #b8400a,
+				inset 3px 3px 0 #fff5c4,
+				2px 2px 0 #000;
+		}
+
+		#howto-skip:active {
+			transform: translate(4px, 4px);
+			box-shadow: none;
+		}
 	</style>
 <link id='-gd-engine-icon' rel='icon' type='image/png' href='index.icon.png' />
 <link rel='apple-touch-icon' href='index.apple-touch-icon.png'/>
@@ -273,6 +389,34 @@
 		<p class='tagline'>"Some chains just execute. PacMochi thinks."</p>
 		<button id='lore-begin' type='button'>Press Start</button>
 	</div>
+
+	<div id='howto-overlay'>
+		<h2>HOW TO PLAY</h2>
+		<div class='howto-row'>
+			<span class='kbd-group'>
+				<span class='kbd'>&uarr;</span>
+				<span class='kbd'>&darr;</span>
+				<span class='kbd'>&larr;</span>
+				<span class='kbd'>&rarr;</span>
+			</span>
+			<span>Move PacMochi through the dungeon</span>
+		</div>
+		<div class='howto-row'>
+			<span class='kbd'>SPACE</span>
+			<span>Cast a magic wall (5 charges)</span>
+		</div>
+		<div class='howto-row'>
+			<span style='font-size: 28px;'>&#9670;</span>
+			<span>Collect every Genesis Coin</span>
+		</div>
+		<div class='howto-row'>
+			<span style='font-size: 28px;'>&#9876;</span>
+			<span>Avoid the validator golems</span>
+		</div>
+		<div id='howto-countdown'>STARTING IN 10...</div>
+		<button id='howto-skip' type='button'>Skip</button>
+	</div>
+
 	<canvas id='canvas'>
 		HTML5 canvas appears to be unsupported in the current browser.<br />
 		Please try updating or use a different browser.
@@ -435,15 +579,43 @@
 				}, 600);
 			}
 
-			function dismiss() {
-				if (!overlay || overlay.classList.contains('hide')) return;
+			var howto = document.getElementById('howto-overlay');
+			var countdownEl = document.getElementById('howto-countdown');
+
+			function showHowTo() {
+				if (!howto) return;
+				howto.classList.add('show');
+				var seconds = 10;
+				if (countdownEl) countdownEl.textContent = 'STARTING IN ' + seconds + '...';
+				var tick = setInterval(function() {
+					seconds -= 1;
+					if (seconds <= 0) {
+						clearInterval(tick);
+						hideHowTo();
+					} else if (countdownEl) {
+						countdownEl.textContent = 'STARTING IN ' + seconds + '...';
+					}
+				}, 1000);
+			}
+
+			function hideHowTo() {
+				if (!howto) return;
 				stopMusic();
-				overlay.classList.add('hide');
+				howto.classList.add('hide');
 				setTimeout(function() {
-					overlay.style.display = 'none';
+					howto.style.display = 'none';
 					var canvas = document.getElementById('canvas');
 					if (canvas) canvas.focus();
-				}, 600);
+				}, 500);
+			}
+
+			function dismiss() {
+				if (!overlay || overlay.classList.contains('hide')) return;
+				// Music continues playing through how-to-play screen.
+				// Show how-to-play FIRST so the game canvas is never visible,
+				// then instantly hide the lore overlay.
+				showHowTo();
+				overlay.style.display = 'none';
 			}
 
 			// Try autoplay; if blocked (likely), kick it off on first user input.
@@ -457,8 +629,16 @@
 			document.addEventListener('keydown', userKick, true);
 
 			if (btn) btn.addEventListener('click', dismiss);
+			var skipBtn = document.getElementById('howto-skip');
+			if (skipBtn) skipBtn.addEventListener('click', hideHowTo);
 			document.addEventListener('keydown', function(e) {
-				if (e.key === 'Enter' || e.key === ' ') dismiss();
+				if (e.key !== 'Enter' && e.key !== ' ') return;
+				// On lore page: dismiss to howto. On howto page: skip ahead.
+				if (overlay && !overlay.classList.contains('hide') && overlay.style.display !== 'none') {
+					dismiss();
+				} else if (howto && howto.classList.contains('show') && !howto.classList.contains('hide')) {
+					hideHowTo();
+				}
 			}, { once: false });
 		})();
 	</script>
