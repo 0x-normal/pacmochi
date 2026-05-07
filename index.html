@@ -124,19 +124,12 @@
 			visibility: visible;
 		}
 
-		/* Vintage pixel lore intro overlay
-		 * =============================== */
+		/* Vintage pixel lore intro overlay */
 		#lore-overlay {
 			position: fixed;
 			inset: 0;
 			background:
-				repeating-linear-gradient(
-					0deg,
-					rgba(0, 0, 0, 0.25) 0px,
-					rgba(0, 0, 0, 0.25) 2px,
-					transparent 2px,
-					transparent 4px
-				),
+				repeating-linear-gradient(0deg, rgba(0,0,0,0.25) 0px, rgba(0,0,0,0.25) 2px, transparent 2px, transparent 4px),
 				radial-gradient(ellipse at center, #2a1a3a 0%, #0a0510 80%);
 			color: #f4e4b8;
 			display: flex;
@@ -150,33 +143,22 @@
 			image-rendering: pixelated;
 			animation: fadeIn 1s steps(8, end);
 		}
-
-		#lore-overlay.hide {
-			animation: fadeOut 0.5s steps(6, end) forwards;
-		}
-
+		#lore-overlay.hide { animation: fadeOut 0.5s steps(6, end) forwards; }
 		#lore-mochi {
-			width: 96px;
-			height: 96px;
-			image-rendering: pixelated;
-			image-rendering: crisp-edges;
+			width: 96px; height: 96px;
+			image-rendering: pixelated; image-rendering: crisp-edges;
 			margin-bottom: 20px;
-			filter: drop-shadow(0 0 8px rgba(255, 180, 60, 0.5));
+			filter: drop-shadow(0 0 8px rgba(255,180,60,0.5));
 			animation: bob 1.6s steps(2, end) infinite;
 		}
-
 		#lore-overlay h1 {
 			font-family: 'Press Start 2P', 'VT323', monospace;
 			font-size: clamp(20px, 3.6vw, 36px);
 			margin: 0 0 10px;
 			color: #ffd86b;
-			text-shadow:
-				2px 2px 0 #b8400a,
-				4px 4px 0 #5a1a05,
-				0 0 16px rgba(255, 180, 60, 0.4);
+			text-shadow: 2px 2px 0 #b8400a, 4px 4px 0 #5a1a05, 0 0 16px rgba(255,180,60,0.4);
 			letter-spacing: 0.04em;
 		}
-
 		#lore-overlay .subtitle {
 			font-family: 'Press Start 2P', monospace;
 			font-size: clamp(8px, 1.1vw, 11px);
@@ -185,7 +167,6 @@
 			margin-bottom: 32px;
 			text-shadow: 1px 1px 0 #2a1a3a;
 		}
-
 		#lore-overlay p {
 			max-width: 600px;
 			font-size: clamp(16px, 2vw, 22px);
@@ -194,76 +175,52 @@
 			color: #e8d9b0;
 			text-shadow: 1px 1px 0 #1a0a2a;
 		}
-
 		#lore-overlay .tagline {
 			color: #ffd86b;
 			margin-top: 12px;
 			margin-bottom: 36px;
 			text-shadow: 1px 1px 0 #5a1a05;
 		}
-
-		#lore-overlay button {
+		#lore-overlay button, #howto-skip {
 			font-family: 'Press Start 2P', monospace;
 			background: #1a0a2a;
 			border: 4px solid #ffd86b;
-			border-image: none;
 			color: #ffd86b;
 			padding: 14px 32px;
 			font-size: 14px;
 			letter-spacing: 0.15em;
 			cursor: pointer;
-			box-shadow:
-				inset -3px -3px 0 #5a1a05,
-				inset 3px 3px 0 #ff9a3a,
-				4px 4px 0 #000;
+			box-shadow: inset -3px -3px 0 #5a1a05, inset 3px 3px 0 #ff9a3a, 4px 4px 0 #000;
 			image-rendering: pixelated;
 			transition: transform 0.08s steps(2);
 		}
-
-		#lore-overlay button:hover,
-		#lore-overlay button:focus {
+		#howto-skip {
+			padding: 10px 24px;
+			font-size: 12px;
+			margin-top: 18px;
+		}
+		#lore-overlay button:hover, #lore-overlay button:focus,
+		#howto-skip:hover, #howto-skip:focus {
 			background: #ffd86b;
 			color: #1a0a2a;
 			outline: none;
 			transform: translate(2px, 2px);
-			box-shadow:
-				inset -3px -3px 0 #b8400a,
-				inset 3px 3px 0 #fff5c4,
-				2px 2px 0 #000;
+			box-shadow: inset -3px -3px 0 #b8400a, inset 3px 3px 0 #fff5c4, 2px 2px 0 #000;
 		}
-
-		#lore-overlay button:active {
+		#lore-overlay button:active, #howto-skip:active {
 			transform: translate(4px, 4px);
 			box-shadow: none;
 		}
+		@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+		@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+		@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 
-		@keyframes fadeIn {
-			from { opacity: 0; }
-			to   { opacity: 1; }
-		}
-
-		@keyframes fadeOut {
-			from { opacity: 1; }
-			to   { opacity: 0; visibility: hidden; }
-		}
-
-		@keyframes bob {
-			0%, 100% { transform: translateY(0); }
-			50%      { transform: translateY(-6px); }
-		}
-
-		/* How-to-play overlay (shown after Press Start) */
+		/* How-to-play overlay */
 		#howto-overlay {
 			position: fixed;
 			inset: 0;
 			background:
-				repeating-linear-gradient(
-					0deg,
-					rgba(0, 0, 0, 0.25) 0px,
-					rgba(0, 0, 0, 0.25) 2px,
-					transparent 2px,
-					transparent 4px
-				),
+				repeating-linear-gradient(0deg, rgba(0,0,0,0.25) 0px, rgba(0,0,0,0.25) 2px, transparent 2px, transparent 4px),
 				radial-gradient(ellipse at center, #2a1a3a 0%, #0a0510 80%);
 			color: #f4e4b8;
 			display: none;
@@ -276,15 +233,8 @@
 			font-family: 'VT323', 'Courier New', monospace;
 			image-rendering: pixelated;
 		}
-
-		#howto-overlay.show {
-			display: flex;
-		}
-
-		#howto-overlay.hide {
-			animation: fadeOut 0.5s steps(6, end) forwards;
-		}
-
+		#howto-overlay.show { display: flex; }
+		#howto-overlay.hide { animation: fadeOut 0.5s steps(6, end) forwards; }
 		#howto-overlay h2 {
 			font-family: 'Press Start 2P', monospace;
 			font-size: clamp(18px, 3vw, 28px);
@@ -293,7 +243,6 @@
 			margin: 0 0 32px;
 			letter-spacing: 0.06em;
 		}
-
 		.howto-row {
 			display: flex;
 			align-items: center;
@@ -304,7 +253,6 @@
 			text-shadow: 1px 1px 0 #1a0a2a;
 			min-height: 56px;
 		}
-
 		.kbd {
 			font-family: 'Press Start 2P', monospace;
 			font-size: clamp(10px, 1.4vw, 13px);
@@ -314,58 +262,15 @@
 			padding: 8px 12px;
 			min-width: 36px;
 			display: inline-block;
-			box-shadow:
-				inset -2px -2px 0 #5a1a05,
-				inset 2px 2px 0 #ff9a3a,
-				3px 3px 0 #000;
+			box-shadow: inset -2px -2px 0 #5a1a05, inset 2px 2px 0 #ff9a3a, 3px 3px 0 #000;
 		}
-
-		.kbd-group {
-			display: inline-flex;
-			gap: 6px;
-		}
-
+		.kbd-group { display: inline-flex; gap: 6px; }
 		#howto-countdown {
 			font-family: 'Press Start 2P', monospace;
 			font-size: clamp(10px, 1.2vw, 12px);
 			color: #b89a6a;
 			margin-top: 32px;
 			letter-spacing: 0.2em;
-		}
-
-		#howto-skip {
-			font-family: 'Press Start 2P', monospace;
-			background: #1a0a2a;
-			border: 4px solid #ffd86b;
-			color: #ffd86b;
-			padding: 10px 24px;
-			font-size: 12px;
-			letter-spacing: 0.15em;
-			cursor: pointer;
-			margin-top: 18px;
-			box-shadow:
-				inset -3px -3px 0 #5a1a05,
-				inset 3px 3px 0 #ff9a3a,
-				4px 4px 0 #000;
-			image-rendering: pixelated;
-			transition: transform 0.08s steps(2);
-		}
-
-		#howto-skip:hover,
-		#howto-skip:focus {
-			background: #ffd86b;
-			color: #1a0a2a;
-			outline: none;
-			transform: translate(2px, 2px);
-			box-shadow:
-				inset -3px -3px 0 #b8400a,
-				inset 3px 3px 0 #fff5c4,
-				2px 2px 0 #000;
-		}
-
-		#howto-skip:active {
-			transform: translate(4px, 4px);
-			box-shadow: none;
 		}
 	</style>
 <link id='-gd-engine-icon' rel='icon' type='image/png' href='index.icon.png' />
@@ -377,15 +282,9 @@
 		<img id='lore-mochi' src='index.icon.png' alt='Mochi' />
 		<h1>PACMOCHI</h1>
 		<div class='subtitle'>A GENLAYER TALE</div>
-		<p>
-			In the year <strong>404 PG</strong>, the digital realm splintered into countless Layers. Dungeons of dumb consensus, patrolled by validator golems trapped in their own code.
-		</p>
-		<p>
-			From a glitch in a forgotten testnet rose <strong>PacMochi</strong>. The first wizard with a brain. Where others execute, he reasons. Where others follow paths, he reshapes them.
-		</p>
-		<p>
-			Collect the Genesis Coins. Outwit the golems. Reach the Vault, and remember the name of the network that thinks.
-		</p>
+		<p>In the year <strong>404 PG</strong>, the digital realm splintered into countless Layers. Dungeons of dumb consensus, patrolled by validator golems trapped in their own code.</p>
+		<p>From a glitch in a forgotten testnet rose <strong>PacMochi</strong>. The first wizard with a brain. Where others execute, he reasons. Where others follow paths, he reshapes them.</p>
+		<p>Collect the Genesis Coins. Outwit the golems. Reach the Vault, and remember the name of the network that thinks.</p>
 		<p class='tagline'>"Some chains just execute. PacMochi thinks."</p>
 		<button id='lore-begin' type='button'>Press Start</button>
 	</div>
@@ -437,91 +336,62 @@
 	</div>
 
 	<script type='text/javascript'>
-		// Lore overlay: chiptune background music + dismiss handlers.
+		// Lore overlay: chiptune + dismiss flow.
 		(function() {
 			var overlay = document.getElementById('lore-overlay');
 			var btn = document.getElementById('lore-begin');
-			var audioCtx = null;
-			var musicTimer = null;
-			var masterGain = null;
-			var musicStarted = false;
+			var howto = document.getElementById('howto-overlay');
+			var countdownEl = document.getElementById('howto-countdown');
+			var skipBtn = document.getElementById('howto-skip');
+			var audioCtx = null, masterGain = null, lpFilter = null, musicTimer = null, musicStarted = false;
 
-			// Vintage music-box / old radio synth.
-			// Melody: triangle wave with pluck envelope, low-pass filtered.
-			// Bass: soft sine wave, slow attack.
-			var lpFilter = null; // shared low-pass filter for "old radio" warmth
-
-			function playMelodyNote(freq, startTime, duration, gainValue) {
-				var osc = audioCtx.createOscillator();
-				var gain = audioCtx.createGain();
-				osc.type = 'triangle';
-				osc.frequency.value = freq;
-				// Music-box pluck: instant attack, exponential decay.
-				gain.gain.setValueAtTime(0, startTime);
-				gain.gain.linearRampToValueAtTime(gainValue, startTime + 0.005);
-				gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-				osc.connect(gain);
-				gain.connect(lpFilter);
-				osc.start(startTime);
-				osc.stop(startTime + duration + 0.05);
+			function playMelodyNote(freq, t, dur, gv) {
+				var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+				o.type = 'triangle'; o.frequency.value = freq;
+				g.gain.setValueAtTime(0, t);
+				g.gain.linearRampToValueAtTime(gv, t + 0.005);
+				g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+				o.connect(g); g.connect(lpFilter);
+				o.start(t); o.stop(t + dur + 0.05);
 			}
-
-			function playBassNote(freq, startTime, duration, gainValue) {
-				var osc = audioCtx.createOscillator();
-				var gain = audioCtx.createGain();
-				osc.type = 'sine';
-				osc.frequency.value = freq;
-				gain.gain.setValueAtTime(0, startTime);
-				gain.gain.linearRampToValueAtTime(gainValue, startTime + 0.05);
-				gain.gain.linearRampToValueAtTime(gainValue * 0.6, startTime + duration * 0.5);
-				gain.gain.linearRampToValueAtTime(0, startTime + duration);
-				osc.connect(gain);
-				gain.connect(masterGain);
-				osc.start(startTime);
-				osc.stop(startTime + duration + 0.05);
+			function playBassNote(freq, t, dur, gv) {
+				var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+				o.type = 'sine'; o.frequency.value = freq;
+				g.gain.setValueAtTime(0, t);
+				g.gain.linearRampToValueAtTime(gv, t + 0.05);
+				g.gain.linearRampToValueAtTime(gv * 0.6, t + dur * 0.5);
+				g.gain.linearRampToValueAtTime(0, t + dur);
+				o.connect(g); g.connect(masterGain);
+				o.start(t); o.stop(t + dur + 0.05);
 			}
-
-			// Slow, melancholic waltz-like melody in A minor.
-			// Tempo: 80 bpm. Quarter note = 0.75s. We use beats in quarter notes.
 			var MELODY = [
-				// Phrase 1
 				[440.00, 1.5], [523.25, 0.5], [659.25, 1], [587.33, 1],
 				[523.25, 1.5], [493.88, 0.5], [440.00, 2],
-				// Phrase 2
 				[493.88, 1.5], [523.25, 0.5], [587.33, 1], [659.25, 1],
 				[587.33, 1.5], [523.25, 0.5], [493.88, 2],
-				// Phrase 3 (lift)
 				[523.25, 1], [659.25, 1], [783.99, 1], [659.25, 1],
 				[587.33, 1.5], [523.25, 0.5], [493.88, 2],
-				// Phrase 4 (resolve)
 				[440.00, 1], [493.88, 1], [523.25, 1], [493.88, 1],
 				[440.00, 3], [0, 1]
 			];
 			var BASS = [
-				// Slow root-note pulse, one note per 4 beats.
 				[110.00, 4], [98.00, 4], [110.00, 4], [82.41, 4],
 				[110.00, 4], [98.00, 4], [110.00, 4], [82.41, 4]
 			];
-			var BEAT = 0.375; // seconds per quarter note (~80 bpm)
-
-			function scheduleLoop(startTime) {
-				var t = startTime;
+			var BEAT = 0.375;
+			function scheduleLoop(start) {
+				var t = start;
 				for (var i = 0; i < MELODY.length; i++) {
-					var note = MELODY[i];
-					if (note[0] > 0) {
-						playMelodyNote(note[0], t, note[1] * BEAT * 0.95, 0.12);
-					}
-					t += note[1] * BEAT;
+					var n = MELODY[i];
+					if (n[0] > 0) playMelodyNote(n[0], t, n[1] * BEAT * 0.95, 0.12);
+					t += n[1] * BEAT;
 				}
-				var bt = startTime;
+				var bt = start;
 				for (var j = 0; j < BASS.length; j++) {
-					var b = BASS[j];
-					playBassNote(b[0], bt, b[1] * BEAT * 0.95, 0.06);
-					bt += b[1] * BEAT;
+					playBassNote(BASS[j][0], bt, BASS[j][1] * BEAT * 0.95, 0.06);
+					bt += BASS[j][1] * BEAT;
 				}
-				return t;
 			}
-
 			function startMusic() {
 				if (musicStarted) return;
 				try {
@@ -532,23 +402,19 @@
 						masterGain = audioCtx.createGain();
 						masterGain.gain.value = 0.45;
 						masterGain.connect(audioCtx.destination);
-
-						// Low-pass filter: rolls off highs for a warm, vintage feel.
 						lpFilter = audioCtx.createBiquadFilter();
 						lpFilter.type = 'lowpass';
 						lpFilter.frequency.value = 1800;
 						lpFilter.Q.value = 0.7;
 						lpFilter.connect(masterGain);
 					}
-					// If suspended (autoplay block), wait until resumed.
 					if (audioCtx.state === 'suspended') {
-						audioCtx.resume().then(function() { actuallyStart(); });
+						audioCtx.resume().then(actuallyStart);
 						return;
 					}
 					actuallyStart();
-				} catch (e) { /* ignore */ }
+				} catch (e) {}
 			}
-
 			function actuallyStart() {
 				if (musicStarted || !audioCtx) return;
 				musicStarted = true;
@@ -562,7 +428,6 @@
 					scheduleLoop(nextStart);
 				}, loopLen * 1000);
 			}
-
 			function stopMusic() {
 				if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
 				if (masterGain && audioCtx) {
@@ -572,16 +437,9 @@
 					masterGain.gain.linearRampToValueAtTime(0, now + 0.4);
 				}
 				setTimeout(function() {
-					if (audioCtx) {
-						try { audioCtx.close(); } catch (e) {}
-						audioCtx = null;
-					}
+					if (audioCtx) { try { audioCtx.close(); } catch (e) {} audioCtx = null; }
 				}, 600);
 			}
-
-			var howto = document.getElementById('howto-overlay');
-			var countdownEl = document.getElementById('howto-countdown');
-
 			function showHowTo() {
 				if (!howto) return;
 				howto.classList.add('show');
@@ -589,15 +447,10 @@
 				if (countdownEl) countdownEl.textContent = 'STARTING IN ' + seconds + '...';
 				var tick = setInterval(function() {
 					seconds -= 1;
-					if (seconds <= 0) {
-						clearInterval(tick);
-						hideHowTo();
-					} else if (countdownEl) {
-						countdownEl.textContent = 'STARTING IN ' + seconds + '...';
-					}
+					if (seconds <= 0) { clearInterval(tick); hideHowTo(); }
+					else if (countdownEl) countdownEl.textContent = 'STARTING IN ' + seconds + '...';
 				}, 1000);
 			}
-
 			function hideHowTo() {
 				if (!howto) return;
 				stopMusic();
@@ -608,17 +461,12 @@
 					if (canvas) canvas.focus();
 				}, 500);
 			}
-
 			function dismiss() {
 				if (!overlay || overlay.classList.contains('hide')) return;
-				// Music continues playing through how-to-play screen.
-				// Show how-to-play FIRST so the game canvas is never visible,
-				// then instantly hide the lore overlay.
 				showHowTo();
 				overlay.style.display = 'none';
 			}
 
-			// Try autoplay; if blocked (likely), kick it off on first user input.
 			startMusic();
 			function userKick() {
 				startMusic();
@@ -629,11 +477,9 @@
 			document.addEventListener('keydown', userKick, true);
 
 			if (btn) btn.addEventListener('click', dismiss);
-			var skipBtn = document.getElementById('howto-skip');
 			if (skipBtn) skipBtn.addEventListener('click', hideHowTo);
 			document.addEventListener('keydown', function(e) {
 				if (e.key !== 'Enter' && e.key !== ' ') return;
-				// On lore page: dismiss to howto. On howto page: skip ahead.
 				if (overlay && !overlay.classList.contains('hide') && overlay.style.display !== 'none') {
 					dismiss();
 				} else if (howto && howto.classList.contains('show') && !howto.classList.contains('hide')) {
@@ -645,7 +491,7 @@
 	<script type='text/javascript' src='index.js'></script>
 	<script type='text/javascript'>//<![CDATA[
 
-		const GODOT_CONFIG = {"args":[],"canvasResizePolicy":1,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":26662784,"index.wasm":25701650},"focusCanvas":true,"gdnativeLibs":[]};
+		const GODOT_CONFIG = {"args":[],"canvasResizePolicy":1,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":26662976,"index.wasm":25701650},"focusCanvas":true,"gdnativeLibs":[]};
 		var engine = new Engine(GODOT_CONFIG);
 
 		(function() {
