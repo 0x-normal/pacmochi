@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' lang='' xml:lang=''>
+<head>
+	<meta charset='utf-8' />
+	<meta name='viewport' content='width=device-width, user-scalable=no' />
+	<title>$GODOT_PROJECT_NAME</title>
+	<link rel='preconnect' href='https://fonts.googleapis.com'>
+	<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+	<link href='https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap' rel='stylesheet'>
+	<style type='text/css'>
+
+		html, body {
+			height: 100%;
+		}
+
+		body {
+			touch-action: none;
+			margin: 0;
+			border: 0 none;
+			padding: 0;
+			background-color: black;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+		}
+
+		#canvas {
+			display: block;
+			margin: 0;
+			color: white;
+			image-rendering: pixelated;
+			image-rendering: crisp-edges;
+		}
+
+		#canvas:focus {
+			outline: none;
+		}
+
+		.godot {
+			font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
+			color: #e0e0e0;
+			background-color: #3b3943;
+			background-image: linear-gradient(to bottom, #403e48, #35333c);
+			border: 1px solid #45434e;
+			box-shadow: 0 0 1px 1px #2f2d35;
+		}
+
+
+		/* Status display
+		 * ============== */
+
+		#status {
+			position: absolute;
+			left: 0;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			/* don't consume click events - make children visible explicitly */
+			visibility: hidden;
+		}
+
+		#status-progress {
+			width: 366px;
+			height: 7px;
+			background-color: #38363A;
+			border: 1px solid #444246;
+			padding: 1px;
+			box-shadow: 0 0 2px 1px #1B1C22;
+			border-radius: 2px;
+			visibility: visible;
+		}
+
+		@media only screen and (orientation:portrait) {
+			#status-progress {
+				width: 61.8%;
+			}
+		}
+
+		#status-progress-inner {
+			height: 100%;
+			width: 0;
+			box-sizing: border-box;
+			transition: width 0.5s linear;
+			background-color: #202020;
+			border: 1px solid #222223;
+			box-shadow: 0 0 1px 1px #27282E;
+			border-radius: 3px;
+		}
+
+		#status-indeterminate {
+			height: 42px;
+			visibility: visible;
+			position: relative;
+		}
+
+		#status-indeterminate > div {
+			width: 4.5px;
+			height: 0;
+			border-style: solid;
+			border-width: 9px 3px 0 3px;
+			border-color: #2b2b2b transparent transparent transparent;
+			transform-origin: center 21px;
+			position: absolute;
+		}
+
+		#status-indeterminate > div:nth-child(1) { transform: rotate( 22.5deg); }
+		#status-indeterminate > div:nth-child(2) { transform: rotate( 67.5deg); }
+		#status-indeterminate > div:nth-child(3) { transform: rotate(112.5deg); }
+		#status-indeterminate > div:nth-child(4) { transform: rotate(157.5deg); }
+		#status-indeterminate > div:nth-child(5) { transform: rotate(202.5deg); }
+		#status-indeterminate > div:nth-child(6) { transform: rotate(247.5deg); }
+		#status-indeterminate > div:nth-child(7) { transform: rotate(292.5deg); }
+		#status-indeterminate > div:nth-child(8) { transform: rotate(337.5deg); }
+
+		#status-notice {
+			margin: 0 100px;
+			line-height: 1.3;
+			visibility: visible;
+			padding: 4px 6px;
+			visibility: visible;
+		}
+
+		/* Vintage pixel lore intro overlay */
+		#lore-overlay {
+			position: fixed;
+			inset: 0;
+			background:
+				repeating-linear-gradient(0deg, rgba(0,0,0,0.25) 0px, rgba(0,0,0,0.25) 2px, transparent 2px, transparent 4px),
+				radial-gradient(ellipse at center, #2a1a3a 0%, #0a0510 80%);
+			color: #f4e4b8;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+			padding: 24px;
+			z-index: 1000;
+			font-family: 'VT323', 'Courier New', monospace;
+			image-rendering: pixelated;
+			animation: fadeIn 1s steps(8, end);
+		}
+		#lore-overlay.hide { animation: fadeOut 0.5s steps(6, end) forwards; }
+		#lore-mochi {
+			width: 96px; height: 96px;
+			image-rendering: pixelated; image-rendering: crisp-edges;
+			margin-bottom: 20px;
+			filter: drop-shadow(0 0 8px rgba(255,180,60,0.5));
+			animation: bob 1.6s steps(2, end) infinite;
+		}
+		#lore-overlay h1 {
+			font-family: 'Press Start 2P', 'VT323', monospace;
+			font-size: clamp(20px, 3.6vw, 36px);
+			margin: 0 0 10px;
+			color: #ffd86b;
+			text-shadow: 2px 2px 0 #b8400a, 4px 4px 0 #5a1a05, 0 0 16px rgba(255,180,60,0.4);
+			letter-spacing: 0.04em;
+		}
+		#lore-overlay .subtitle {
+			font-family: 'Press Start 2P', monospace;
+			font-size: clamp(8px, 1.1vw, 11px);
+			color: #b89a6a;
+			letter-spacing: 0.2em;
+			margin-bottom: 32px;
+			text-shadow: 1px 1px 0 #2a1a3a;
+		}
+		#lore-overlay p {
+			max-width: 600px;
+			font-size: clamp(16px, 2vw, 22px);
+			line-height: 1.5;
+			margin: 0 0 14px;
+			color: #e8d9b0;
+			text-shadow: 1px 1px 0 #1a0a2a;
+		}
+		#lore-overlay .tagline {
+			color: #ffd86b;
+			margin-top: 12px;
+			margin-bottom: 36px;
+			text-shadow: 1px 1px 0 #5a1a05;
+		}
+		#lore-overlay button, #howto-skip {
+			font-family: 'Press Start 2P', monospace;
+			background: #1a0a2a;
+			border: 4px solid #ffd86b;
+			color: #ffd86b;
+			padding: 14px 32px;
+			font-size: 14px;
+			letter-spacing: 0.15em;
+			cursor: pointer;
+			box-shadow: inset -3px -3px 0 #5a1a05, inset 3px 3px 0 #ff9a3a, 4px 4px 0 #000;
+			image-rendering: pixelated;
+			transition: transform 0.08s steps(2);
+		}
+		#howto-skip {
+			padding: 10px 24px;
+			font-size: 12px;
+			margin-top: 18px;
+		}
+		#lore-overlay button:hover, #lore-overlay button:focus,
+		#howto-skip:hover, #howto-skip:focus {
+			background: #ffd86b;
+			color: #1a0a2a;
+			outline: none;
+			transform: translate(2px, 2px);
+			box-shadow: inset -3px -3px 0 #b8400a, inset 3px 3px 0 #fff5c4, 2px 2px 0 #000;
+		}
+		#lore-overlay button:active, #howto-skip:active {
+			transform: translate(4px, 4px);
+			box-shadow: none;
+		}
+		@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+		@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+		@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+		/* How-to-play overlay */
+		#howto-overlay {
+			position: fixed;
+			inset: 0;
+			background:
+				repeating-linear-gradient(0deg, rgba(0,0,0,0.25) 0px, rgba(0,0,0,0.25) 2px, transparent 2px, transparent 4px),
+				radial-gradient(ellipse at center, #2a1a3a 0%, #0a0510 80%);
+			color: #f4e4b8;
+			display: none;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+			padding: 24px;
+			z-index: 1000;
+			font-family: 'VT323', 'Courier New', monospace;
+			image-rendering: pixelated;
+		}
+		#howto-overlay.show { display: flex; }
+		#howto-overlay.hide { animation: fadeOut 0.5s steps(6, end) forwards; }
+		#howto-overlay h2 {
+			font-family: 'Press Start 2P', monospace;
+			font-size: clamp(18px, 3vw, 28px);
+			color: #ffd86b;
+			text-shadow: 2px 2px 0 #b8400a, 4px 4px 0 #5a1a05;
+			margin: 0 0 32px;
+			letter-spacing: 0.06em;
+		}
+		.howto-row {
+			display: flex;
+			align-items: center;
+			gap: 18px;
+			font-size: clamp(18px, 2.2vw, 24px);
+			color: #e8d9b0;
+			margin: 10px 0;
+			text-shadow: 1px 1px 0 #1a0a2a;
+			min-height: 56px;
+		}
+		.kbd {
+			font-family: 'Press Start 2P', monospace;
+			font-size: clamp(10px, 1.4vw, 13px);
+			color: #ffd86b;
+			background: #1a0a2a;
+			border: 3px solid #ffd86b;
+			padding: 8px 12px;
+			min-width: 36px;
+			display: inline-block;
+			box-shadow: inset -2px -2px 0 #5a1a05, inset 2px 2px 0 #ff9a3a, 3px 3px 0 #000;
+		}
+		.kbd-group { display: inline-flex; gap: 6px; }
+		#howto-countdown {
+			font-family: 'Press Start 2P', monospace;
+			font-size: clamp(10px, 1.2vw, 12px);
+			color: #b89a6a;
+			margin-top: 32px;
+			letter-spacing: 0.2em;
+		}
+	</style>
+$GODOT_HEAD_INCLUDE
+</head>
+<body>
+	<div id='lore-overlay'>
+		<img id='lore-mochi' src='index.icon.png' alt='Mochi' />
+		<h1>PACMOCHI</h1>
+		<div class='subtitle'>A GENLAYER TALE</div>
+		<p>In the year <strong>404 PG</strong>, the digital realm splintered into countless Layers. Dungeons of dumb consensus, patrolled by validator golems trapped in their own code.</p>
+		<p>From a glitch in a forgotten testnet rose <strong>PacMochi</strong>. The first wizard with a brain. Where others execute, he reasons. Where others follow paths, he reshapes them.</p>
+		<p>Collect the Genesis Coins. Outwit the golems. Reach the Vault, and remember the name of the network that thinks.</p>
+		<p class='tagline'>"Some chains just execute. PacMochi thinks."</p>
+		<button id='lore-begin' type='button'>Press Start</button>
+	</div>
+
+	<div id='howto-overlay'>
+		<h2>HOW TO PLAY</h2>
+		<div class='howto-row'>
+			<span class='kbd-group'>
+				<span class='kbd'>&uarr;</span>
+				<span class='kbd'>&darr;</span>
+				<span class='kbd'>&larr;</span>
+				<span class='kbd'>&rarr;</span>
+			</span>
+			<span>Move PacMochi through the dungeon</span>
+		</div>
+		<div class='howto-row'>
+			<span class='kbd'>SPACE</span>
+			<span>Cast a magic wall (5 charges)</span>
+		</div>
+		<div class='howto-row'>
+			<span style='font-size: 28px;'>&#9670;</span>
+			<span>Collect every Genesis Coin</span>
+		</div>
+		<div class='howto-row'>
+			<span style='font-size: 28px;'>&#9876;</span>
+			<span>Avoid the validator golems</span>
+		</div>
+		<div id='howto-countdown'>STARTING IN 10...</div>
+		<button id='howto-skip' type='button'>Skip</button>
+	</div>
+
+	<canvas id='canvas'>
+		HTML5 canvas appears to be unsupported in the current browser.<br />
+		Please try updating or use a different browser.
+	</canvas>
+	<div id='status'>
+		<div id='status-progress' style='display: none;' oncontextmenu='event.preventDefault();'><div id ='status-progress-inner'></div></div>
+		<div id='status-indeterminate' style='display: none;' oncontextmenu='event.preventDefault();'>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+		<div id='status-notice' class='godot' style='display: none;'></div>
+	</div>
+
+	<script type='text/javascript'>
+		// Lore overlay: chiptune + dismiss flow.
+		(function() {
+			var overlay = document.getElementById('lore-overlay');
+			var btn = document.getElementById('lore-begin');
+			var howto = document.getElementById('howto-overlay');
+			var countdownEl = document.getElementById('howto-countdown');
+			var skipBtn = document.getElementById('howto-skip');
+			var audioCtx = null, masterGain = null, lpFilter = null, musicTimer = null, musicStarted = false;
+
+			function playMelodyNote(freq, t, dur, gv) {
+				var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+				o.type = 'triangle'; o.frequency.value = freq;
+				g.gain.setValueAtTime(0, t);
+				g.gain.linearRampToValueAtTime(gv, t + 0.005);
+				g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+				o.connect(g); g.connect(lpFilter);
+				o.start(t); o.stop(t + dur + 0.05);
+			}
+			function playBassNote(freq, t, dur, gv) {
+				var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+				o.type = 'sine'; o.frequency.value = freq;
+				g.gain.setValueAtTime(0, t);
+				g.gain.linearRampToValueAtTime(gv, t + 0.05);
+				g.gain.linearRampToValueAtTime(gv * 0.6, t + dur * 0.5);
+				g.gain.linearRampToValueAtTime(0, t + dur);
+				o.connect(g); g.connect(masterGain);
+				o.start(t); o.stop(t + dur + 0.05);
+			}
+			var MELODY = [
+				[440.00, 1.5], [523.25, 0.5], [659.25, 1], [587.33, 1],
+				[523.25, 1.5], [493.88, 0.5], [440.00, 2],
+				[493.88, 1.5], [523.25, 0.5], [587.33, 1], [659.25, 1],
+				[587.33, 1.5], [523.25, 0.5], [493.88, 2],
+				[523.25, 1], [659.25, 1], [783.99, 1], [659.25, 1],
+				[587.33, 1.5], [523.25, 0.5], [493.88, 2],
+				[440.00, 1], [493.88, 1], [523.25, 1], [493.88, 1],
+				[440.00, 3], [0, 1]
+			];
+			var BASS = [
+				[110.00, 4], [98.00, 4], [110.00, 4], [82.41, 4],
+				[110.00, 4], [98.00, 4], [110.00, 4], [82.41, 4]
+			];
+			var BEAT = 0.375;
+			function scheduleLoop(start) {
+				var t = start;
+				for (var i = 0; i < MELODY.length; i++) {
+					var n = MELODY[i];
+					if (n[0] > 0) playMelodyNote(n[0], t, n[1] * BEAT * 0.95, 0.12);
+					t += n[1] * BEAT;
+				}
+				var bt = start;
+				for (var j = 0; j < BASS.length; j++) {
+					playBassNote(BASS[j][0], bt, BASS[j][1] * BEAT * 0.95, 0.06);
+					bt += BASS[j][1] * BEAT;
+				}
+			}
+			function startMusic() {
+				if (musicStarted) return;
+				try {
+					if (!audioCtx) {
+						var Ctx = window.AudioContext || window.webkitAudioContext;
+						if (!Ctx) return;
+						audioCtx = new Ctx();
+						masterGain = audioCtx.createGain();
+						masterGain.gain.value = 0.45;
+						masterGain.connect(audioCtx.destination);
+						lpFilter = audioCtx.createBiquadFilter();
+						lpFilter.type = 'lowpass';
+						lpFilter.frequency.value = 1800;
+						lpFilter.Q.value = 0.7;
+						lpFilter.connect(masterGain);
+					}
+					if (audioCtx.state === 'suspended') {
+						audioCtx.resume().then(actuallyStart);
+						return;
+					}
+					actuallyStart();
+				} catch (e) {}
+			}
+			function actuallyStart() {
+				if (musicStarted || !audioCtx) return;
+				musicStarted = true;
+				var loopLen = 0;
+				for (var i = 0; i < MELODY.length; i++) loopLen += MELODY[i][1] * BEAT;
+				var nextStart = audioCtx.currentTime + 0.05;
+				scheduleLoop(nextStart);
+				musicTimer = setInterval(function() {
+					if (!audioCtx) return;
+					nextStart += loopLen;
+					scheduleLoop(nextStart);
+				}, loopLen * 1000);
+			}
+			function stopMusic() {
+				if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+				if (masterGain && audioCtx) {
+					var now = audioCtx.currentTime;
+					masterGain.gain.cancelScheduledValues(now);
+					masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+					masterGain.gain.linearRampToValueAtTime(0, now + 0.4);
+				}
+				setTimeout(function() {
+					if (audioCtx) { try { audioCtx.close(); } catch (e) {} audioCtx = null; }
+				}, 600);
+			}
+			function showHowTo() {
+				if (!howto) return;
+				howto.classList.add('show');
+				var seconds = 10;
+				if (countdownEl) countdownEl.textContent = 'STARTING IN ' + seconds + '...';
+				var tick = setInterval(function() {
+					seconds -= 1;
+					if (seconds <= 0) { clearInterval(tick); hideHowTo(); }
+					else if (countdownEl) countdownEl.textContent = 'STARTING IN ' + seconds + '...';
+				}, 1000);
+			}
+			function hideHowTo() {
+				if (!howto) return;
+				stopMusic();
+				howto.classList.add('hide');
+				setTimeout(function() {
+					howto.style.display = 'none';
+					var canvas = document.getElementById('canvas');
+					if (canvas) canvas.focus();
+				}, 500);
+			}
+			function dismiss() {
+				if (!overlay || overlay.classList.contains('hide')) return;
+				showHowTo();
+				overlay.style.display = 'none';
+			}
+
+			startMusic();
+			function userKick() {
+				startMusic();
+				document.removeEventListener('click', userKick, true);
+				document.removeEventListener('keydown', userKick, true);
+			}
+			document.addEventListener('click', userKick, true);
+			document.addEventListener('keydown', userKick, true);
+
+			if (btn) btn.addEventListener('click', dismiss);
+			if (skipBtn) skipBtn.addEventListener('click', hideHowTo);
+			document.addEventListener('keydown', function(e) {
+				if (e.key !== 'Enter' && e.key !== ' ') return;
+				if (overlay && !overlay.classList.contains('hide') && overlay.style.display !== 'none') {
+					dismiss();
+				} else if (howto && howto.classList.contains('show') && !howto.classList.contains('hide')) {
+					hideHowTo();
+				}
+			}, { once: false });
+		})();
+	</script>
+	<script type='text/javascript' src='$GODOT_URL'></script>
+	<script type='text/javascript'>//<![CDATA[
+
+		const GODOT_CONFIG = $GODOT_CONFIG;
+		var engine = new Engine(GODOT_CONFIG);
+
+		(function() {
+			const INDETERMINATE_STATUS_STEP_MS = 100;
+			var statusProgress = document.getElementById('status-progress');
+			var statusProgressInner = document.getElementById('status-progress-inner');
+			var statusIndeterminate = document.getElementById('status-indeterminate');
+			var statusNotice = document.getElementById('status-notice');
+
+			var initializing = true;
+			var statusMode = 'hidden';
+
+			var animationCallbacks = [];
+			function animate(time) {
+				animationCallbacks.forEach(callback => callback(time));
+				requestAnimationFrame(animate);
+			}
+			requestAnimationFrame(animate);
+
+			function animateStatusIndeterminate(ms) {
+				var i = Math.floor(ms / INDETERMINATE_STATUS_STEP_MS % 8);
+				if (statusIndeterminate.children[i].style.borderTopColor == '') {
+					Array.prototype.slice.call(statusIndeterminate.children).forEach(child => {
+						child.style.borderTopColor = '';
+					});
+					statusIndeterminate.children[i].style.borderTopColor = '#dfdfdf';
+				}
+			}
+
+			function setStatusMode(mode) {
+
+				if (statusMode === mode || !initializing)
+					return;
+				[statusProgress, statusIndeterminate, statusNotice].forEach(elem => {
+					elem.style.display = 'none';
+				});
+				animationCallbacks = animationCallbacks.filter(function(value) {
+					return (value != animateStatusIndeterminate);
+				});
+				switch (mode) {
+					case 'progress':
+						statusProgress.style.display = 'block';
+						break;
+					case 'indeterminate':
+						statusIndeterminate.style.display = 'block';
+						animationCallbacks.push(animateStatusIndeterminate);
+						break;
+					case 'notice':
+						statusNotice.style.display = 'block';
+						break;
+					case 'hidden':
+						break;
+					default:
+						throw new Error('Invalid status mode');
+				}
+				statusMode = mode;
+			}
+
+			function setStatusNotice(text) {
+				while (statusNotice.lastChild) {
+					statusNotice.removeChild(statusNotice.lastChild);
+				}
+				var lines = text.split('\n');
+				lines.forEach((line) => {
+					statusNotice.appendChild(document.createTextNode(line));
+					statusNotice.appendChild(document.createElement('br'));
+				});
+			};
+
+			function displayFailureNotice(err) {
+				var msg = err.message || err;
+				console.error(msg);
+				setStatusNotice(msg);
+				setStatusMode('notice');
+				initializing = false;
+			};
+
+			if (!Engine.isWebGLAvailable()) {
+				displayFailureNotice('WebGL not available');
+			} else {
+				setStatusMode('indeterminate');
+				engine.startGame({
+					'onProgress': function (current, total) {
+						if (total > 0) {
+							statusProgressInner.style.width = current/total * 100 + '%';
+							setStatusMode('progress');
+							if (current === total) {
+								// wait for progress bar animation
+								setTimeout(() => {
+									setStatusMode('indeterminate');
+								}, 500);
+							}
+						} else {
+							setStatusMode('indeterminate');
+						}
+					},
+				}).then(() => {
+					setStatusMode('hidden');
+					initializing = false;
+				}, displayFailureNotice);
+			}
+		})();
+	//]]></script>
+</body>
+</html>
