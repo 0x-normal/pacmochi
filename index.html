@@ -4,6 +4,9 @@
 	<meta charset='utf-8' />
 	<meta name='viewport' content='width=device-width, user-scalable=no' />
 	<title>PacMochi</title>
+	<link rel='preconnect' href='https://fonts.googleapis.com'>
+	<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+	<link href='https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap' rel='stylesheet'>
 	<style type='text/css'>
 
 		html, body {
@@ -120,12 +123,156 @@
 			padding: 4px 6px;
 			visibility: visible;
 		}
+
+		/* Vintage pixel lore intro overlay
+		 * =============================== */
+		#lore-overlay {
+			position: fixed;
+			inset: 0;
+			background:
+				repeating-linear-gradient(
+					0deg,
+					rgba(0, 0, 0, 0.25) 0px,
+					rgba(0, 0, 0, 0.25) 2px,
+					transparent 2px,
+					transparent 4px
+				),
+				radial-gradient(ellipse at center, #2a1a3a 0%, #0a0510 80%);
+			color: #f4e4b8;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+			padding: 24px;
+			z-index: 1000;
+			font-family: 'VT323', 'Courier New', monospace;
+			image-rendering: pixelated;
+			animation: fadeIn 1s steps(8, end);
+		}
+
+		#lore-overlay.hide {
+			animation: fadeOut 0.5s steps(6, end) forwards;
+		}
+
+		#lore-mochi {
+			width: 96px;
+			height: 96px;
+			image-rendering: pixelated;
+			image-rendering: crisp-edges;
+			margin-bottom: 20px;
+			filter: drop-shadow(0 0 8px rgba(255, 180, 60, 0.5));
+			animation: bob 1.6s steps(2, end) infinite;
+		}
+
+		#lore-overlay h1 {
+			font-family: 'Press Start 2P', 'VT323', monospace;
+			font-size: clamp(20px, 3.6vw, 36px);
+			margin: 0 0 10px;
+			color: #ffd86b;
+			text-shadow:
+				2px 2px 0 #b8400a,
+				4px 4px 0 #5a1a05,
+				0 0 16px rgba(255, 180, 60, 0.4);
+			letter-spacing: 0.04em;
+		}
+
+		#lore-overlay .subtitle {
+			font-family: 'Press Start 2P', monospace;
+			font-size: clamp(8px, 1.1vw, 11px);
+			color: #b89a6a;
+			letter-spacing: 0.2em;
+			margin-bottom: 32px;
+			text-shadow: 1px 1px 0 #2a1a3a;
+		}
+
+		#lore-overlay p {
+			max-width: 600px;
+			font-size: clamp(16px, 2vw, 22px);
+			line-height: 1.5;
+			margin: 0 0 14px;
+			color: #e8d9b0;
+			text-shadow: 1px 1px 0 #1a0a2a;
+		}
+
+		#lore-overlay .tagline {
+			color: #ffd86b;
+			margin-top: 12px;
+			margin-bottom: 36px;
+			text-shadow: 1px 1px 0 #5a1a05;
+		}
+
+		#lore-overlay button {
+			font-family: 'Press Start 2P', monospace;
+			background: #1a0a2a;
+			border: 4px solid #ffd86b;
+			border-image: none;
+			color: #ffd86b;
+			padding: 14px 32px;
+			font-size: 14px;
+			letter-spacing: 0.15em;
+			cursor: pointer;
+			box-shadow:
+				inset -3px -3px 0 #5a1a05,
+				inset 3px 3px 0 #ff9a3a,
+				4px 4px 0 #000;
+			image-rendering: pixelated;
+			transition: transform 0.08s steps(2);
+		}
+
+		#lore-overlay button:hover,
+		#lore-overlay button:focus {
+			background: #ffd86b;
+			color: #1a0a2a;
+			outline: none;
+			transform: translate(2px, 2px);
+			box-shadow:
+				inset -3px -3px 0 #b8400a,
+				inset 3px 3px 0 #fff5c4,
+				2px 2px 0 #000;
+		}
+
+		#lore-overlay button:active {
+			transform: translate(4px, 4px);
+			box-shadow: none;
+		}
+
+		@keyframes fadeIn {
+			from { opacity: 0; }
+			to   { opacity: 1; }
+		}
+
+		@keyframes fadeOut {
+			from { opacity: 1; }
+			to   { opacity: 0; visibility: hidden; }
+		}
+
+		@keyframes bob {
+			0%, 100% { transform: translateY(0); }
+			50%      { transform: translateY(-6px); }
+		}
 	</style>
 <link id='-gd-engine-icon' rel='icon' type='image/png' href='index.icon.png' />
 <link rel='apple-touch-icon' href='index.apple-touch-icon.png'/>
 
 </head>
 <body>
+	<div id='lore-overlay'>
+		<img id='lore-mochi' src='index.icon.png' alt='Mochi' />
+		<h1>PACMOCHI</h1>
+		<div class='subtitle'>A GENLAYER TALE</div>
+		<p>
+			In the year <strong>404 PG</strong>, the digital realm splintered into countless Layers. Dungeons of dumb consensus, patrolled by validator golems trapped in their own code.
+		</p>
+		<p>
+			From a glitch in a forgotten testnet rose <strong>PacMochi</strong>. The first wizard with a brain. Where others execute, he reasons. Where others follow paths, he reshapes them.
+		</p>
+		<p>
+			Collect the Genesis Coins. Outwit the golems. Reach the Vault, and remember the name of the network that thinks.
+		</p>
+		<p class='tagline'>"Some chains just execute. PacMochi thinks."</p>
+		<button id='lore-begin' type='button'>Press Start</button>
+	</div>
 	<canvas id='canvas'>
 		HTML5 canvas appears to be unsupported in the current browser.<br />
 		Please try updating or use a different browser.
@@ -145,6 +292,26 @@
 		<div id='status-notice' class='godot' style='display: none;'></div>
 	</div>
 
+	<script type='text/javascript'>
+		// Dismiss the lore overlay (click "Begin", press Enter, or press Space).
+		(function() {
+			var overlay = document.getElementById('lore-overlay');
+			var btn = document.getElementById('lore-begin');
+			function dismiss() {
+				if (!overlay || overlay.classList.contains('hide')) return;
+				overlay.classList.add('hide');
+				setTimeout(function() {
+					overlay.style.display = 'none';
+					var canvas = document.getElementById('canvas');
+					if (canvas) canvas.focus();
+				}, 600);
+			}
+			if (btn) btn.addEventListener('click', dismiss);
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Enter' || e.key === ' ') dismiss();
+			}, { once: false });
+		})();
+	</script>
 	<script type='text/javascript' src='index.js'></script>
 	<script type='text/javascript'>//<![CDATA[
 
